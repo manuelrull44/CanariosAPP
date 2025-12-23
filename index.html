@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Canarios</title>
+    <style>
+        /* ESTILO GENERAL (TIPO IPHONE) */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f2f2f7; margin: 0; padding: 0; color: #000; }
+        
+        /* APP */
+        .header { background-color: #007AFF; color: white; padding: 20px; text-align: center; font-size: 20px; font-weight: bold; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .container { padding: 15px; padding-bottom: 80px; }
+        
+        /* TARJETAS JAULAS */
+        .card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
+        .jaula-title { font-size: 18px; font-weight: bold; color: #007AFF; }
+        
+        /* ESTILO PADRES */
+        .info-padres { font-size: 13px; color: #333; background-color: #f0f0f5; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+        .padre-block { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #ccc; }
+        .padre-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .padre-titulo { font-weight: bold; font-size: 14px; margin-bottom: 4px; display: block; }
+        .dato-item { display: inline-block; margin-right: 8px; margin-bottom: 2px; }
+        .label-dato { font-weight: 600; color: #555; }
+
+        /* PUESTAS */
+        .puesta-item { background-color: #fff; border: 1px solid #e5e5ea; padding: 10px; border-radius: 8px; margin-top: 8px; font-size: 14px; position: relative; }
+        .puesta-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .puesta-titulo { font-weight: bold; color: #007AFF; }
+        .btn-editar { background: #e3f2fd; color: #007AFF; border: none; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; cursor: pointer; }
+
+        .fechas-row { display: flex; justify-content: space-between; color: #666; font-size: 12px; margin-bottom: 5px; }
+        .huevos-row { display: flex; gap: 15px; font-weight: bold; font-size: 15px; color: #333; margin-top: 5px;}
+        .anillas-tag { color: #666; font-weight: bold; font-size: 13px; margin-top: 4px; }
+        .obs-text { font-style: italic; color: #777; margin-top: 5px; font-size: 13px; border-top: 1px dashed #eee; padding-top: 4px;}
+
+        /* BOTONES */
+        button { border: none; cursor: pointer; font-size: 16px; border-radius: 8px; padding: 10px 15px; }
+        .btn-primary { background-color: #007AFF; color: white; width: 100%; margin-top: 10px; }
+        .btn-secondary { background-color: #e5e5ea; color: #007AFF; font-weight: bold; }
+        .btn-danger { background-color: #ff3b30; color: white; font-size: 12px; padding: 5px 10px; }
+        .btn-float { position: fixed; bottom: 20px; right: 20px; background-color: #34c759; color: white; width: 60px; height: 60px; border-radius: 30px; font-size: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; z-index: 150; }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
+        input { width: 100%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        label { font-weight: bold; font-size: 14px; color: #333; display: block; margin-top: 5px; }
+        h3 { margin-top: 0; color: #007AFF; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div class="header">Canarios 🐤</div>
+
+    <div class="container" id="listaJaulas"></div>
+
+    <button class="btn-float" onclick="abrirModalJaula()">+</button>
+
+    <div id="modalJaula" class="modal">
+        <div class="modal-content">
+            <h3>Jaula</h3>
+            <label>Nº Jaula</label> <input type="text" id="inputJaula">
+            
+            <hr style="border: 0; border-top: 1px solid #eee;">
+            <div style="text-align:center; font-weight:bold; color:black;">DATOS MACHO</div>
+            <label>Anilla</label> <input type="text" id="mAnilla">
+            <label>Color</label> <input type="text" id="mColor">
+            <label>Año</label> <input type="text" id="mAnio">
+            <label>Procedencia</label> <input type="text" id="mProc">
+
+            <hr style="border: 0; border-top: 1px solid #eee;">
+            <div style="text-align:center; font-weight:bold; color:black;">DATOS HEMBRA</div>
+            <label>Anilla</label> <input type="text" id="hAnilla">
+            <label>Color</label> <input type="text" id="hColor">
+            <label>Año</label> <input type="text" id="hAnio">
+            <label>Procedencia</label> <input type="text" id="hProc">
+
+            <button class="btn-primary" onclick="guardarJaula()">Guardar</button>
+            <button class="btn-secondary" style="width:100%; margin-top:10px; color:#e91e63;" onclick="cerrarModales()">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="modalPuesta" class="modal">
+        <div class="modal-content">
+            <h3 id="tituloModalPuesta">Nueva Puesta</h3>
+            
+            <label>Inicio Incuvacion</label>
+            <input type="text" id="inputFechaInicio">
+
+            <label>Fecha Nacimiento</label>
+            <input type="text" id="inputFechaNac">
+            
+            <div style="display:flex; gap:10px;">
+                <div style="flex:1;">
+                    <label>Nº Huevos</label>
+                    <input type="number" id="inputHuevos">
+                </div>
+                <div style="flex:1;">
+                    <label>Huevos Claros</label>
+                    <input type="number" id="inputHuevosClaros">
+                </div>
+            </div>
+            
+            <label>Anillas</label>
+            <input type="text" id="inputAnillas">
+
+            <label>Observaciones</label>
+            <input type="text" id="inputObs">
+
+            <button class="btn-primary" onclick="guardarPuesta()">Guardar</button>
+            <button class="btn-secondary" style="width:100%; margin-top:10px;" onclick="cerrarModales()">Cancelar</button>
+        </div>
+    </div>
+
+    <script>
+        // --- LÓGICA DE DATOS ---
+        let aviario = JSON.parse(localStorage.getItem('aviarioData')) || [];
+
+        // Guardar y pintar
+        pintarPantalla();
+
+        function guardarEnMemoria() {
+            localStorage.setItem('aviarioData', JSON.stringify(aviario));
+            pintarPantalla();
+        }
+
+        function formatearFecha(texto) {
+            if (!texto) return "";
+            const partes = texto.split(" ");
+            if (partes.length < 2) return texto;
+
+            const meses = ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            const dia = partes[0];
+            const mesNum = parseInt(partes[1]);
+            const anio = partes[2] ? partes[2] : ""; 
+
+            if (mesNum > 0 && mesNum <= 12) {
+                let resultado = `${dia} de ${meses[mesNum]}`;
+                if (anio) resultado += ` de ${anio}`;
+                return resultado;
+            }
+            return texto;
+        }
+
+        function pintarPantalla() {
+            const contenedor = document.getElementById('listaJaulas');
+            contenedor.innerHTML = '';
+
+            if (aviario.length === 0) {
+                contenedor.innerHTML = '<p style="text-align:center; color:#999; margin-top:50px;">Pulsa + para empezar.</p>';
+                return;
+            }
+
+            aviario.forEach((jaula, indexJaula) => {
+                let htmlPuestas = '';
+                
+                jaula.puestas.forEach((p, indexPuesta) => {
+                    let htmlObs = p.observaciones ? `<div class="obs-text">Nota: ${p.observaciones}</div>` : '';
+                    let clarosTexto = p.huevosClaros ? p.huevosClaros : "0";
+
+                    htmlPuestas += `
+                        <div class="puesta-item">
+                            <div class="puesta-header">
+                                <span class="puesta-titulo">Puesta Nº ${p.numero}</span>
+                                <button class="btn-editar" onclick="abrirModalPuesta(${indexJaula}, ${indexPuesta})">Editar</button>
+                            </div>
+                            <div class="fechas-row"><span>Inicio Incubación: ${p.fechaInicio || '-'}</span></div>
+                            <div class="fechas-row"><span>Fecha Nacimiento: ${p.fechaNacimiento || '-'}</span></div>
+                            
+                            <div class="huevos-row">
+                                <span style="color:#2ecc71;">Totales: ${p.huevos}</span>
+                                <span style="color:#e74c3c;">Claros: ${clarosTexto}</span>
+                            </div>
+
+                            <div class="anillas-tag">Anillas: ${p.anillas}</div>
+                            ${htmlObs}
+                        </div>
+                    `;
+                });
+
+                const tarjeta = document.createElement('div');
+                tarjeta.className = 'card';
+                tarjeta.innerHTML = `
+                    <div class="card-header">
+                        <span class="jaula-title">Jaula ${jaula.numero}</span>
+                        <button class="btn-danger" onclick="borrarJaula(${indexJaula})">🗑</button>
+                    </div>
+                    
+                    <div class="info-padres">
+                        <div class="padre-block">
+                            <span class="padre-titulo" style="color:#007AFF;">♂ MACHO</span>
+                            <div class="dato-item"><span class="label-dato">Anilla:</span> ${jaula.macho.anilla}</div>
+                            <div class="dato-item"><span class="label-dato">Color:</span> ${jaula.macho.color || '-'}</div>
+                            <div class="dato-item"><span class="label-dato">Año:</span> ${jaula.macho.anio || '-'}</div>
+                            <div class="dato-item"><span class="label-dato">Procedencia:</span> ${jaula.macho.proc || '-'}</div>
+                        </div>
+                        <div class="padre-block">
+                            <span class="padre-titulo" style="color:#e91e63;">♀ HEMBRA</span>
+                            <div class="dato-item"><span class="label-dato">Anilla:</span> ${jaula.hembra.anilla}</div>
+                            <div class="dato-item"><span class="label-dato">Color:</span> ${jaula.hembra.color || '-'}</div>
+                            <div class="dato-item"><span class="label-dato">Año:</span> ${jaula.hembra.anio || '-'}</div>
+                            <div class="dato-item"><span class="label-dato">Procedencia:</span> ${jaula.hembra.proc || '-'}</div>
+                        </div>
+                    </div>
+
+                    <div>${htmlPuestas}</div>
+                    <button class="btn-secondary" style="width:100%; margin-top:10px; font-size:14px;" onclick="abrirModalPuesta(${indexJaula}, null)">+ Añadir Puesta</button>
+                `;
+                contenedor.appendChild(tarjeta);
+            });
+        }
+
+        // --- GESTIÓN MODALES ---
+        let indiceJaulaSel = null;
+        let indicePuestaSel = null; 
+
+        function abrirModalJaula() {
+            // BORRADO DE DATOS ANTERIORES
+            document.getElementById('inputJaula').value = '';
+            document.getElementById('mAnilla').value = '';
+            document.getElementById('mColor').value = '';
+            document.getElementById('mAnio').value = '';
+            document.getElementById('mProc').value = '';
+            document.getElementById('hAnilla').value = '';
+            document.getElementById('hColor').value = '';
+            document.getElementById('hAnio').value = '';
+            document.getElementById('hProc').value = '';
+
+            document.getElementById('modalJaula').style.display = 'flex';
+        }
+
+        function abrirModalPuesta(indexJaula, indexPuesta) {
+            indiceJaulaSel = indexJaula;
+            indicePuestaSel = indexPuesta;
+            
+            // Limpiar campos primero
+            const inputs = document.querySelectorAll('#modalPuesta input');
+            inputs.forEach(i => i.value = '');
+
+            if (indexPuesta !== null) {
+                // MODO EDICIÓN
+                document.getElementById('tituloModalPuesta').innerText = "Editar Puesta";
+                let p = aviario[indexJaula].puestas[indexPuesta];
+                
+                document.getElementById('inputFechaInicio').value = p.fechaInicio;
+                document.getElementById('inputFechaNac').value = p.fechaNacimiento;
+                document.getElementById('inputHuevos').value = p.huevos;
+                document.getElementById('inputHuevosClaros').value = p.huevosClaros;
+                document.getElementById('inputObs').value = p.observaciones;
+                // CARGAR ANILLAS EN TEXTO
+                document.getElementById('inputAnillas').value = p.anillas;
+
+            } else {
+                // MODO CREAR
+                document.getElementById('tituloModalPuesta').innerText = "Nueva Puesta";
+            }
+            document.getElementById('modalPuesta').style.display = 'flex';
+        }
+
+        function cerrarModales() {
+            document.getElementById('modalJaula').style.display = 'none';
+            document.getElementById('modalPuesta').style.display = 'none';
+        }
+
+        // --- GUARDAR DATOS ---
+
+        function guardarJaula() {
+            const num = document.getElementById('inputJaula').value;
+            const mData = {
+                anilla: document.getElementById('mAnilla').value,
+                color: document.getElementById('mColor').value,
+                anio: document.getElementById('mAnio').value,
+                proc: document.getElementById('mProc').value
+            };
+            const hData = {
+                anilla: document.getElementById('hAnilla').value,
+                color: document.getElementById('hColor').value,
+                anio: document.getElementById('hAnio').value,
+                proc: document.getElementById('hProc').value
+            };
+
+            if (num) {
+                const nuevaJaula = {
+                    numero: num,
+                    macho: mData,
+                    hembra: hData,
+                    puestas: []
+                };
+                aviario.push(nuevaJaula);
+                guardarEnMemoria();
+                cerrarModales();
+            } else {
+                alert("Falta el número de jaula");
+            }
+        }
+
+        function guardarPuesta() {
+            const fInicio = document.getElementById('inputFechaInicio').value;
+            const fNac = document.getElementById('inputFechaNac').value;
+            const huevos = document.getElementById('inputHuevos').value;
+            const huevosClaros = document.getElementById('inputHuevosClaros').value;
+            const obs = document.getElementById('inputObs').value;
+            
+            // ANILLAS LIBRES
+            const anillasTexto = document.getElementById('inputAnillas').value || "Sin anillas";
+
+            let fechaFinInicio = fInicio.includes("de") ? fInicio : formatearFecha(fInicio);
+            let fechaFinNac = fNac.includes("de") ? fNac : formatearFecha(fNac);
+
+            const datosPuesta = {
+                fechaInicio: fechaFinInicio,
+                fechaNacimiento: fechaFinNac,
+                huevos: huevos || "0",
+                huevosClaros: huevosClaros || "0",
+                anillas: anillasTexto,
+                observaciones: obs
+            };
+
+            const jaula = aviario[indiceJaulaSel];
+
+            if (indicePuestaSel !== null) {
+                datosPuesta.numero = jaula.puestas[indicePuestaSel].numero; 
+                jaula.puestas[indicePuestaSel] = datosPuesta;
+            } else {
+                datosPuesta.numero = jaula.puestas.length + 1;
+                jaula.puestas.push(datosPuesta);
+            }
+
+            guardarEnMemoria();
+            cerrarModales();
+        }
+
+        function borrarJaula(index) {
+            if(confirm("¿Estas seguro que quieres borrar la jaula?")) {
+                aviario.splice(index, 1);
+                guardarEnMemoria();
+            }
+        }
+    </script>
+</body>
+</html>
